@@ -23,7 +23,9 @@ def generate_image(modulus):
     table = multiplication_table(modulus)
     fig, axis = plt.subplots(1, 1)
     axis.imshow(table)
+    axis.set_title(f"Modulus: ${modulus}$")
     fig.savefig(f"../plots/multiplication_modulo_{modulus}.png",
                 bbox_inches='tight')
 
-generate_image(1009)
+for mod in range(1020, 1030):
+    generate_image(mod)
