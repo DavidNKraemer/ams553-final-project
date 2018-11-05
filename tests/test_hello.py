@@ -1,4 +1,4 @@
-from src.dumb import hello_world
+from src.entities import hello_world
 
 
 def test_hello():
