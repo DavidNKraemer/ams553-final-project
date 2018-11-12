@@ -26,11 +26,6 @@ class Site:
 
 class System:
 
-    SPEED_DIST = None
-    CYCLE_DIST = None
-    LOCATION_DIST = None
-
-
     def __init__(self, drones, sites):
         self.drones = drones
         self.sites = sites
