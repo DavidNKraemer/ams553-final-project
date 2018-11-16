@@ -4,6 +4,12 @@ Repository for the fall 2018 AMS 553 "Simulation and Modeling" course final proj
 
 [Link to Overleaf project](https://www.overleaf.com/7166295694ynxnsdqhnwmw).
 
+[Link to Cross Entropy paper](https://people.smp.uq.edu.au/DirkKroese/ps/CEopt.pdf)
+
+[shady link to good book](http://b-ok.cc/book/2095240/8a1643)
+
+[corresponding slides](https://people.smp.uq.edu.au/DirkKroese/ps/tutslides.pdf)
+
 # TODOs
 
 ## Proposal
