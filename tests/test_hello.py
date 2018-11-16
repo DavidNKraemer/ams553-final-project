@@ -1,4 +1,6 @@
-from src.entities import hello_world
+def hello_world():
+    return "hello, world!"
+
 
 
 def test_hello():
