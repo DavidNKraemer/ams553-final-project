@@ -30,14 +30,14 @@ def random_partition(length, parts):
 
 def tour_traversal(tour, points):
     """
-    :param tour: The particular tour over the given points.
+    :param tour: The
     :type tour: list[list]
     :param points: A point set in a Euclidean space
     :type points: numpy.ndarray
     :return: The length of traversal over the subset of points specified by the tour.
     :rtype: float
 
-    Computes the total traversal time for a single tour on a subset of a selection of points.
+    Computes the total traversal time for a single tour on a sub_et of a selection of points.
     """
     return sum(norm(points[tour[i]] - points[tour[i-1]]) for i, p in enumerate(tour))
 

@@ -37,20 +37,20 @@ class Annealer:
     """
 
 
-    def __init__(self, space: StateSpace, inf_temp=1e-5, discount=9e-1, internal_iter=100):
+    def __init__(self, space: StateSpace, inf_temp=1e-5, decay=9e-1, internal_iter=100):
         """
         :param space: The state space on which the annealing searches.
         :type space: StateSpae
         :param inf_temp: The minimum "temperature" at which simulated annealing exits.
         :type inf_temp: float
-        :param discount: The "discount rate" of the temperature.
-        :type discount: float
+        :param decay: The "decay rate" of the temperature.
+        :type decay: float
         :param internal_iter: The number of iterations each step of annealing performs.
         :type internal_iter: int
         """
         self.space = space
         self.inf_temperature = inf_temp
-        self.discount = discount
+        self.decay = decay
         self.internal_iterations = internal_iter
 
 
@@ -98,5 +98,5 @@ class Annealer:
                     # flip a coin. if heads, accept the new state. otherwise, proceed as before.
                     state, old_cost = new_state, new_cost
             # lower the temperature
-            temperature *= self.discount
+            temperature *= self.decay
         return state, old_cost
