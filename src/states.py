@@ -14,13 +14,11 @@ class StateSpace(abc.ABC):
     for generating a random state.
     """
 
-
     class State(abc.ABC):
         """
         The specification of the embedded state in the container state space.
         """
         pass
-
 
     @abc.abstractmethod
     def cost(self, state: "State") -> float:
@@ -31,8 +29,7 @@ class StateSpace(abc.ABC):
         :return: The associated cost for the given state
         :rtype: float
         """
-        pass
-
+        raise NotImplementedError
 
     @abc.abstractmethod
     def neighbor(self, state: "State") -> "State":
@@ -43,8 +40,7 @@ class StateSpace(abc.ABC):
         :return: A neighbor of the given state
         :rtype: StateSpace.State
         """
-        pass
-
+        raise NotImplementedError
 
     @abc.abstractmethod
     def random_state(self) -> "State":
@@ -52,4 +48,4 @@ class StateSpace(abc.ABC):
         :return: A random state in the state space
         :rtype: StateSpace.Space
         """
-        pass
+        raise NotImplementedError

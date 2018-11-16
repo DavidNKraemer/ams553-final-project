@@ -36,7 +36,6 @@ class Annealer:
     .. [AnnealingMathWorld] http://mathworld.wolfram.com/SimulatedAnnealing.html
     """
 
-
     def __init__(self, space: StateSpace, inf_temp=1e-5, decay=9e-1, internal_iter=100):
         """
         :param space: The state space on which the annealing searches.
@@ -52,7 +51,6 @@ class Annealer:
         self.inf_temperature = inf_temp
         self.decay = decay
         self.internal_iterations = internal_iter
-
 
     @staticmethod
     def acceptance_probability(cost1, cost2, temperature) -> float:
@@ -73,7 +71,6 @@ class Annealer:
         could try different options.
         """
         return _metropolis_hastings_probability(cost1, cost2, temperature)
-
 
     def anneal(self, starting_state: StateSpace.State) -> (StateSpace.State, float):
         """

@@ -56,11 +56,10 @@ def max_tours_traversal(tours, points):
     return max(tour_traversal(tour, points) for tour in tours)
 
 
-class KDroneTour(StateSpace):
+class DroneTour(StateSpace):
     """
     Formal state space description of the k-drone tour problem.
     """
-
 
     class State(list):
         """
@@ -68,7 +67,6 @@ class KDroneTour(StateSpace):
         to the domain.
         """
         pass
-
 
     def __init__(self, points, num_drones):
         """
@@ -79,7 +77,6 @@ class KDroneTour(StateSpace):
         """
         self.points = points
         self.num_drones = num_drones
-
 
     def cost(self, state):
         """
@@ -93,7 +90,6 @@ class KDroneTour(StateSpace):
         """
         return max_tours_traversal(state, self.points)
 
-
     def random_state(self):
         """
         :return: A random state
@@ -102,7 +98,6 @@ class KDroneTour(StateSpace):
         Returns a random state in the state space.
         """
         return random_partition(len(self.points), self.num_drones)
-
 
     def neighbor(self, state):
         """
