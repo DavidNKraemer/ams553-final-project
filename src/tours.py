@@ -3,7 +3,7 @@
 Formal description of the K Drone Tour state space model.
 """
 from random import sample, shuffle
-from states import StateSpace
+from src.states import StateSpace
 from numpy.linalg import norm
 
 
