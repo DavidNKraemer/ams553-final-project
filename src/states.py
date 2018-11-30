@@ -43,7 +43,7 @@ class StateSpace(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def random_state(self) -> "State":
+    def generate_state(self) -> "State":
         """
         :return: A random state in the state space
         :rtype: StateSpace.Space
