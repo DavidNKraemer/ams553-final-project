@@ -2,7 +2,7 @@
 """
 Data structures for computing simulated annealing.
 """
-from states import StateSpace
+from src.states import StateSpace
 from numpy import exp
 from numpy.random import rand
 
@@ -72,28 +72,51 @@ class Annealer:
         """
         return _metropolis_hastings_probability(cost1, cost2, temperature)
 
-    def anneal(self, starting_state: StateSpace.State) -> (StateSpace.State, float):
+    def anneal(self, callback=None) -> (StateSpace.State, float):
         """
-        :param starting_state: The place at which the annealing begins.
-        :type starting_state: StateSpace.State
+        :param callback:
+        The keyword arguments passed to callback are
+            - current state, the state associated with the current annealing iteration
+            - current_cost, the cost associated with the current state
+            - new_state, a new state drawn in the current iteration
+            - new_cost, the cost associated with the new state
+            - acceptance_probability, the probability that the annealer will accept the new state as the next state in
+                                      the current iteration
+            - coin_flip, the value of the coin flip associated with the current iteration
+            - current_temperature, the temperature associated with the current iteration
 
         :return: The terminal state space, along with its associated cost.
         :rtype: (StateSpace.State, float)
 
         Performs the simulated annealing method.
         """
-        state = starting_state
-        old_cost = self.space.cost(state)
+        state = self.space.generate_state()
+        cost = self.space.cost(state)
         temperature = 1e0
         while temperature > self.inf_temperature:
             # until the temperature has cooled completely, search for new neighbors.
             for _ in range(self.internal_iterations):
+
+
                 # draw a neighbor from the current state, and compute its associated cost.
                 new_state = self.space.neighbor(state)
                 new_cost = self.space.cost(new_state)
-                if rand() < self.acceptance_probability(old_cost, new_cost, temperature):
+                acceptance = self.acceptance_probability(cost, new_cost, temperature)
+                coin = rand()
+                if callback:
+                    callback(
+                        current_state=state,
+                        current_cost=cost,
+                        new_state=new_state,
+                        new_cost=new_cost,
+                        acceptance_probability=acceptance,
+                        coin_flip=coin,
+                        current_temperature=temperature
+                    )
+
+                if coin < acceptance:
                     # flip a coin. if heads, accept the new state. otherwise, proceed as before.
-                    state, old_cost = new_state, new_cost
+                    state, cost = new_state, new_cost
             # lower the temperature
             temperature *= self.decay
-        return state, old_cost
+        return state, cost

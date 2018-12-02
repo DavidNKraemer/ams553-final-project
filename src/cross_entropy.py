@@ -12,8 +12,17 @@ class CrossEntropy:
         self.quantile = quantile  # quantile must be nonzero
         self.iterations = iterations
 
-    def minimize(self):
-        parameters = self.state_space.get_parameters()
+    def minimize(self, callback=None):
+        """
+
+        :param callback: Function
+        The keyword arguments passed to callback are
+            - sample_states, the current sample of states in the given round of annealing
+            - sample_scores, the scores associated with the sampled states in the given round of annealing
+            - threshold, the scores which form the (1-quantile) quantile of the sample scores
+            - distribution_parameters, the current parameters of the distribution of states in the state space
+        :return:
+        """
         for _ in range(self.iterations):
             samples = [self.state_space.generate_state() for _ in range(self.sample_size)]
 
@@ -26,4 +35,13 @@ class CrossEntropy:
 
             # update the parameters of the state space for the next round
             parameters = self.state_space.estimate_parameters(threshold, samples, scores)
+
+            if callback:
+                callback(
+                    sample_states=samples,
+                    sample_scores=scores,
+                    threshold=threshold,
+                    distribution_parameters=parameters,
+                )
+
             self.state_space.set_parameters(parameters)
