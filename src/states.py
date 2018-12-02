@@ -49,3 +49,41 @@ class StateSpace(abc.ABC):
         :rtype: StateSpace.Space
         """
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def pmf(self, state: "State") -> float:
+        """
+
+        :param state:
+        :return:
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def estimate_parameters(self, threshold, samples, scores):
+        """
+
+        :param threshold:
+        :param samples:
+        :param scores:
+        :return:
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_parameters(self):
+        """
+
+        :param parameters:
+        :return:
+        """
+        return NotImplementedError
+
+    @abc.abstractmethod
+    def set_parameters(self, parameters):
+        """
+
+        :param parameters:
+        :return:
+        """
+        raise NotImplementedError

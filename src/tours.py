@@ -7,89 +7,61 @@ from src.states import StateSpace
 import numpy as np
 
 
-def random_partition(length, parts):
-    """
-    :param length: the length of the range we are partitioning.
-    :type length: int
-    :param parts: the number in the partition of the range.
-    :type parts: int
-    :return: A random partition of the range into the specified sublists.
-    :rtype: list[list]
-
-    Partitions the range 0, 1, 2, ..., length-1 into `parts` random sublists.
-
-    I believe this is drawing from a "uniform" distribution over all partitions, but I'm not sure.
-    It's safe to assume that the Python functionss `shuffle` and `sample` are implemented to
-    conform to uniformity.
-    """
-    iterable = list(range(length))
-    shuffle(iterable)
-    indices = [0] + sorted(sample(range(1, length), k=parts-1))
-    return [iterable[indices[i]:indices[i+1]] for i in range(parts-1)] + [iterable[indices[-1]:]]
-
-
-def block_site_and_normalize(matrix, site, drone, available_drones):
+def block_site_and_normalize(matrix, site, drone, drone_distribution):
     """
 
     :param matrix:
     :param site:
     :param drone:
-    :param available_drones:
+    :param drone_distribution:
     :return:
     """
     matrix[:, site] = 0.
     normalization = np.sum(matrix, axis=1)[:, None]
     if normalization[site] == 0.:
-        available_drones[drone, 1] = 0.
-        available_drones[:, 1] /= np.sum(available_drones[:, 1])
+        drone_distribution[drone] = 0.
+        drone_distribution /= np.sum(drone_distribution)
 
     for row, normalizer in enumerate(normalization):
         if normalizer > 0.:
             matrix /= np.sum(matrix, axis=1)[:, None]
 
 
-def draw_from(distribution):
-    """
-
-    :param distribution:
-    :return:
-    """
-
-    return np.random.choice(np.arange(len(distribution)), size=1, p=distribution)
-
-
-def generate_drone_trajectory(matrix, initial_dist, drones):
+def generate_drone_trajectory(matrix, initial_dist, num_drones):
     """
     :param matrix: A transition probability matrix
     :type matrix: numpy.ndarray
     :param initial_dist:
     :type initial_dist: numpy.ndarray
-    :param drones:
-    :type int:
+    :param num_drones:
+    :type num_drones: int
     :return: A k-drone tour of list(range(len(initial_dist))) that follows the probabilities in matrix
     :rtype: dict[list]
     """
 
-    available_drones = list(range(drones))
+    # the set of drones and sites being drawn from
+    available_drones = list(range(num_drones))
+    available_sites = list(range(len(matrix)))
+
     drone_probabilities = uniform_initial(available_drones)
 
     # starting sites
-    sites = np.random.choice(np.arange(len(initial_dist)), size=drones, p=initial_dist)
+    sites = np.random.choice(np.arange(len(initial_dist)), size=num_drones, p=initial_dist)
 
     # trajectories data structure
-    print(available_drones)
-    print(drone_probabilities)
-
     trajectories = {drone: [sites[drone]] for drone in available_drones}
+
+    # normalize after drawing initial starting sites
     for drone in trajectories:
         block_site_and_normalize(matrix, trajectories[drone][-1], drone, drone_probabilities)
 
-    while True:
-        drone_id = np.random.choice(available_drones[:, 0], size=1, p=available_drones[:, 1])
+    # loop until the matrix is all zeros
+    while np.linalg.norm(matrix, ord=1) != 0.:
+        drone_id = np.random.choice(available_drones, p=drone_probabilities)
         current_site = trajectories[drone_id][-1]
-        next_site = draw_from(matrix[current_site, :])
+        next_site = np.random.choice(available_sites, p=matrix[current_site, :])
         trajectories[drone_id].append(next_site)
-        block_site_and_normalize(matrix, next_site, drone_id, available_drones)
+        block_site_and_normalize(matrix, next_site, drone_id, drone_probabilities)
 
     return trajectories
 
@@ -111,7 +83,7 @@ def tour_traversal(tour, points):
 def max_tours_traversal(tours, points):
     """
     :param tours: A list of tours over the given points.
-    :type tour: list[list]
+    :type tours: list[list]
     :param points: A point set in a Euclidean space
     :type points: numpy.ndarray
     :return: The maximum length of traversal over the subset of points specified by the tours.
@@ -119,7 +91,7 @@ def max_tours_traversal(tours, points):
 
     Computes the maximum traversal time from a given set of tours over a point set.
     """
-    return max(tour_traversal(tour, points) for tour in tours)
+    return max(tour_traversal(tours[drone], points) for drone in tours)
 
 
 def uniform_transition(points):
@@ -198,7 +170,7 @@ class DroneTour(StateSpace):
 
         Returns a random state in the state space according with the distribution parameters.
         """
-        return generate_drone_trajectory(self.transition_matrix, self.initial_distribution, self.num_drones)
+        return generate_drone_trajectory(self.transition_matrix.copy(), self.initial_distribution, self.num_drones)
 
     def neighbor(self, state):
         """
@@ -213,3 +185,48 @@ class DroneTour(StateSpace):
         but there may be better alternatives.
         """
         return self.generate_state()
+
+    def pmf(self, state):
+        """
+
+        :param state:
+        :return: The probability mass associated with the given state.
+        :rtype: float
+        """
+
+        probability = 1.
+
+        for drone in state.keys():
+            tour = state[drone]
+            probability *= self.initial_distribution[tour[0]]
+            for (i, site) in enumerate(tour):
+                next_site = tour[(i+1) % len(tour)]
+                probability *= self.transition_matrix[site, next_site]
+
+        return probability
+
+    def estimate_parameters(self, threshold, samples, scores):
+        """
+
+        :param threshold:
+        :param samples:
+        :return:
+        """
+
+        return {'initial_distribution': self.initial_distribution, 'transition_matrix': self.transition_matrix}
+
+    def get_parameters(self):
+        """
+
+        :return:
+        """
+        return {'initial_distribution': self.initial_distribution, 'transition_matrix': self.transition_matrix}
+
+    def set_parameters(self, parameters):
+        """
+
+        :param parameters:
+        :return:
+        """
+        self.initial_distribution = parameters['initial_distribution']
+        self.transition_matrix = parameters['transition_matrix']
