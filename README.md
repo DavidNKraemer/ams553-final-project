@@ -10,6 +10,9 @@ Repository for the fall 2018 AMS 553 "Simulation and Modeling" course final proj
 
 [corresponding slides](https://people.smp.uq.edu.au/DirkKroese/ps/tutslides.pdf)
 
+**Important**: If you want to see demonstrations on how the code base works, please check the `scripts`
+directory for details. There you will see how to access various bits of data.
+
 # TODOs
 
 ## Proposal
