@@ -74,7 +74,6 @@ class StateSpace(abc.ABC):
     def get_parameters(self):
         """
 
-        :param parameters:
         :return:
         """
         return NotImplementedError

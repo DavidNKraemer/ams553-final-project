@@ -3,7 +3,6 @@ import numpy as np
 import src.tours as tours
 from src.cross_entropy import CrossEntropy
 
-
 # drone tour parameters
 num_sites, num_drones = 10, 4
 sites = np.random.rand(num_sites, 2)  # the 2 indicates we are sampling sites from the plane
@@ -15,7 +14,6 @@ x_entropy_sample_size = 1
 x_entropy_quantile = 0.1  # specifies the 90% percentile
 
 x_entropy_estimator = CrossEntropy(drone_tour, x_entropy_sample_size, x_entropy_quantile)
-
 
 # an example way to use the callback -- see below for details
 samples_drawn = []
@@ -33,7 +31,7 @@ def callback(**kwargs):
     :return:
     """
     samples_drawn.append(kwargs['sample_states'])  # for example, maybe we want a list of all samples drawn during
-                                                   # the run of cross entropy
+    # the run of cross entropy
 
 
 x_entropy_estimator.minimize(callback=callback)

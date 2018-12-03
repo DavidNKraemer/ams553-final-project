@@ -39,7 +39,7 @@ class Annealer:
     def __init__(self, space: StateSpace, inf_temp=1e-5, decay=9e-1, internal_iter=100):
         """
         :param space: The state space on which the annealing searches.
-        :type space: StateSpae
+        :type space: StateSpace
         :param inf_temp: The minimum "temperature" at which simulated annealing exits.
         :type inf_temp: float
         :param decay: The "decay rate" of the temperature.
@@ -96,7 +96,6 @@ class Annealer:
         while temperature > self.inf_temperature:
             # until the temperature has cooled completely, search for new neighbors.
             for _ in range(self.internal_iterations):
-
 
                 # draw a neighbor from the current state, and compute its associated cost.
                 new_state = self.space.neighbor(state)

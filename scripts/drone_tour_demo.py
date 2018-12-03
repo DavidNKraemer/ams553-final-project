@@ -24,7 +24,7 @@ tour = drone_tour.generate_state()
 # here's the cost associated with the tour
 cost = drone_tour.cost(tour)
 
-# here's the probabiltiy mass function of the tour
+# here's the probability mass function of the tour
 prob = drone_tour.pmf(tour)
 
 # here's how to access the transition matrix
