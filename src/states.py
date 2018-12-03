@@ -47,42 +47,57 @@ class StateSpace(abc.ABC):
         """
         :return: A random state in the state space
         :rtype: StateSpace.Space
+
+        Returns a state from the StateSpace
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def pmf(self, state: "State") -> float:
         """
+        :param state: A state in the state space
+        :type state: StateSpace.State
+        :return: The probability mass function associated with the state
+        :rtype: float
 
-        :param state:
-        :return:
+        Computes the pmf associated with a given state in the StateSpace
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def estimate_parameters(self, threshold, samples, scores):
         """
+        :param threshold: a score threshold for comparing against the sample scores
+        :type threshold: float
+        :param samples: a set of samples generated from cross entropy
+        :type samples: list[StateSpace.State]
+        :param scores: a set of scores associated with each sample in samples
+        :type scores: list[float]
 
-        :param threshold:
-        :param samples:
-        :param scores:
-        :return:
+        :return: cross entropy-minimizing parameters given the available data
+        :rtype: dict
+
+        Estimates and returns the cross entropy-minimizing parameters from the available sample data. See the references
+        to CrossEntropy.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_parameters(self):
         """
+        :return: the probability distribution parameters
+        :rtype: dict
 
-        :return:
+        Retrieves the current probability distribution parameters of the StateSpace
         """
-        return NotImplementedError
+        raise NotImplementedError
 
     @abc.abstractmethod
     def set_parameters(self, parameters):
         """
-
         :param parameters:
-        :return:
+        :return: N/A [called for side effects]
+
+        Sets the current StateSpace probability distribution parameters to the provided parameters.
         """
         raise NotImplementedError

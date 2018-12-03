@@ -32,8 +32,11 @@ class Annealer:
     """
     A general class for performing simulated annealing.
 
-    .. [AnnealingWiki] https://en.wikipedia.org/wiki/Simulated_annealing
-    .. [AnnealingMathWorld] http://mathworld.wolfram.com/SimulatedAnnealing.html
+    References
+    ----------
+
+    - https://en.wikipedia.org/wiki/Simulated_annealing
+    - http://mathworld.wolfram.com/SimulatedAnnealing.html
     """
 
     def __init__(self, space: StateSpace, inf_temp=1e-5, decay=9e-1, internal_iter=100):
@@ -102,7 +105,8 @@ class Annealer:
                 new_cost = self.space.cost(new_state)
                 acceptance = self.acceptance_probability(cost, new_cost, temperature)
                 coin = rand()
-                if callback:
+
+                if callback:  # this is for additional data gathering and analysis by the user
                     callback(
                         current_state=state,
                         current_cost=cost,

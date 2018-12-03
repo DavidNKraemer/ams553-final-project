@@ -5,9 +5,10 @@ import src.tours as tours
 
 def stochastic_matrix(matrix):
     """
+    :param matrix: The nonnegative matrix to be normalized.
+    :return: a normalized version of matrix
+
     Given a nonnegative matrix with positive row sums, return a normalized version so that the rows sum to 1.
-    :param matrix:
-    :return:
     """
     return matrix / np.sum(matrix, axis=1)[:, None]
 
@@ -41,4 +42,3 @@ initial_distribution = drone_tour.initial_distribution
 new_initial_distribution = np.random.rand(num_sites)
 new_initial_distribution /= np.sum(new_initial_distribution)
 drone_tour.initial_distribution = new_initial_distribution
-
