@@ -2,15 +2,25 @@
 """
 Formal description of the K Drone Tour state space model.
 """
-from random import sample, shuffle
 from src.states import StateSpace
 import numpy as np
 
 
+def indicator(condition):
+    """
+    :param condition: A boolean statement on which to evaluate inputs.
+    :type condition: bool
+    :return: 1 if the condition holds, 0 otherwise.
+    :rtype: float
+
+    Implementation of the indicator function 1_{condition}(x)
+    """
+    return float(condition)
+
+
 def block_site_and_normalize(matrix, site, drone, drone_distribution):
     """
-
-    :param matrix:
+    :param matrix: n
     :param site:
     :param drone:
     :param drone_distribution:
@@ -69,7 +79,7 @@ def generate_drone_trajectory(matrix, initial_dist, num_drones):
 def tour_traversal(tour, points):
     """
     :param tour: The
-    :type tour: list[list]
+    :type tour: list[int]
     :param points: A point set in a Euclidean space
     :type points: numpy.ndarray
     :return: The length of traversal over the subset of points specified by the tour.
@@ -77,13 +87,13 @@ def tour_traversal(tour, points):
 
     Computes the total traversal time for a single tour on a sub_et of a selection of points.
     """
-    return sum(np.linalg.norm(points[tour[i]] - points[tour[i-1]]) for i, p in enumerate(tour))
+    return sum(np.linalg.norm(points[tour[i]] - points[tour[i - 1]]) for i, p in enumerate(tour))
 
 
 def max_tours_traversal(tours, points):
     """
     :param tours: A list of tours over the given points.
-    :type tours: list[list]
+    :type tours: dict[int, list]
     :param points: A point set in a Euclidean space
     :type points: numpy.ndarray
     :return: The maximum length of traversal over the subset of points specified by the tours.
@@ -109,10 +119,10 @@ def uniform_transition(points):
     return np.ones((size, size)) / size
 
 
-def uniform_initial(points):
+def uniform_initial(states):
     """
-    :param points: A point set in a Euclidean space
-    :type points: numpy.ndarray
+    :param states: A set of bins on which to define the uniform distribution
+    :type states: Iterable
 
     :return: Uniform initial starting distribution on the points
     :rtype: numpy.ndarray
@@ -120,7 +130,7 @@ def uniform_initial(points):
     Returns a distribution vector corresponding to a uniform distribution on the
     sites.
     """
-    size = len(points)
+    size = len(states)
     return np.ones(size) / size
 
 
@@ -200,7 +210,7 @@ class DroneTour(StateSpace):
             tour = state[drone]
             probability *= self.initial_distribution[tour[0]]
             for (i, site) in enumerate(tour):
-                next_site = tour[(i+1) % len(tour)]
+                next_site = tour[(i + 1) % len(tour)]
                 probability *= self.transition_matrix[site, next_site]
 
         return probability
@@ -208,12 +218,52 @@ class DroneTour(StateSpace):
     def estimate_parameters(self, threshold, samples, scores):
         """
 
+        :param scores:
         :param threshold:
         :param samples:
         :return:
         """
 
-        return {'initial_distribution': self.initial_distribution, 'transition_matrix': self.transition_matrix}
+        sites = len(self.initial_distribution)
+
+        # compute the new initial distribution parameter
+        initial_distribution = np.empty(self.initial_distribution.shape)
+        for j in range(sites):
+            numerator = sum(
+                indicator(scores[ell] >= threshold) *
+                indicator(any(j == samples[ell][d][0] for d in samples[ell]))
+                for ell in range(len(samples))
+            )
+            denominator = sum(
+                indicator(scores[ell] >= threshold) *
+                indicator(any(jp == samples[ell][d][0] for d in samples[ell]))
+                for ell in range(len(samples)) for jp in range(sites)
+            )
+            initial_distribution[j] = numerator / denominator
+
+        # compute the new transition matrix
+        transition_matrix = np.empty(self.transition_matrix.shape)
+        for i in range(sites):
+            for j in range(sites):
+                numerator = sum(
+                    indicator(scores[ell] >= threshold) *
+                    indicator(samples[ell][d][r] == i and samples[ell][d][(r + 1) % len(samples[ell][d])] == j)
+                    for ell in range(len(samples))
+                    for d in range(self.num_drones)
+                    for r in range(len(samples[ell][d]))
+                )
+                denominator = sum(
+                    indicator(scores[ell] >= threshold) *
+                    indicator(samples[ell][d][r] == i and samples[ell][d][(r + 1) % len(samples[ell][d])] == jp)
+                    for jp in range(sites)
+                    for ell in range(len(samples))
+                    for d in range(self.num_drones)
+                    for r in range(len(samples[ell][d]))
+                )
+
+                transition_matrix[i, j] = numerator / denominator
+
+        return {'initial_distribution': initial_distribution, 'transition_matrix': self.transition_matrix}
 
     def get_parameters(self):
         """
