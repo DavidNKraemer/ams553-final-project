@@ -34,6 +34,8 @@ def callback(**kwargs):
     """
     tours_drawn.append(kwargs['current_state'])  # for example, maybe we want a list of all samples drawn during
     # the run of cross entropy
+    if kwargs['iteration'] == 10:
+        print(kwargs['current_cost'])
 
 
 annealer.anneal(callback=callback)
