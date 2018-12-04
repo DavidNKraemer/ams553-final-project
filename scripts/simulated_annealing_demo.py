@@ -21,6 +21,7 @@ def callback(**kwargs):
 
     :param kwargs:
     The keyword arguments passed to callback are
+            - iteration, the current iteration
             - current state, the state associated with the current annealing iteration
             - current_cost, the cost associated with the current state
             - new_state, a new state drawn in the current iteration

@@ -79,6 +79,7 @@ class Annealer:
         """
         :param callback:
         The keyword arguments passed to callback are
+            - iteration, the current iteration
             - current state, the state associated with the current annealing iteration
             - current_cost, the cost associated with the current state
             - new_state, a new state drawn in the current iteration
@@ -98,7 +99,7 @@ class Annealer:
         temperature = 1e0
         while temperature > self.inf_temperature:
             # until the temperature has cooled completely, search for new neighbors.
-            for _ in range(self.internal_iterations):
+            for iteration in range(self.internal_iterations):
 
                 # draw a neighbor from the current state, and compute its associated cost.
                 new_state = self.space.neighbor(state)
@@ -108,6 +109,7 @@ class Annealer:
 
                 if callback:  # this is for additional data gathering and analysis by the user
                     callback(
+                        iteration=iteration,
                         current_state=state,
                         current_cost=cost,
                         new_state=new_state,

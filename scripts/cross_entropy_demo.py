@@ -24,6 +24,7 @@ def callback(**kwargs):
 
     :param kwargs:
     The keyword arguments passed to callback are
+            - iteration, the current iteration
             - sample_states, the current sample of states in the given round of annealing
             - sample_scores, the scores associated with the sampled states in the given round of annealing
             - threshold, the scores which form the (1-quantile) quantile of the sample scores

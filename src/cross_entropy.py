@@ -39,13 +39,14 @@ class CrossEntropy:
 
         Performs the cross entropy method for minimizing an objective function over a parameterized state space.
         The keyword arguments passed to callback are
+            - iteration, the current iteration
             - sample_states, the current sample of states in the given round of annealing
             - sample_scores, the scores associated with the sampled states in the given round of annealing
             - threshold, the scores which form the (1-quantile) quantile of the sample scores
             - distribution_parameters, the current parameters of the distribution of states in the state space
         Cross entropy modifies the parameters of the underlying state space, but does not return anything in particular.
         """
-        for _ in range(self.iterations):
+        for iteration in range(self.iterations):
             samples = [self.state_space.generate_state() for _ in range(self.sample_size)]
 
             # compute the scores associated with the samples and put them in descending (low = good) order
@@ -60,6 +61,7 @@ class CrossEntropy:
 
             if callback:  # this is for additional data gathering and analysis by the user
                 callback(
+                    iteration=iteration,
                     sample_states=samples,
                     sample_scores=scores,
                     threshold=threshold,
