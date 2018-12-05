@@ -7,7 +7,7 @@ def partition(ns, m):
     was taken from StackExchange.
 
     References:
-        -https://codereview.stackexchange.com/questions/1526/finding-all-k-subset-partitions
+        - https://codereview.stackexchange.com/questions/1526/finding-all-k-subset-partitions
 
     :param ns: An array of integers to be partitioned
     :param m: the number of partitions that should be created.
@@ -91,7 +91,7 @@ def partition(ns, m):
     return f(m, n, 0, n, a)
 
 
-def brute_force_optimize(n, k, cost_fn=None) -> (list, float):
+def find_optimal_partition(n, k, cost_fn=None) -> (list, float):
     """
     Finds the optimal partition and corresponding cost, with respect to
     minimizing the provided cost function.
