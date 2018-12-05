@@ -96,9 +96,10 @@ class Annealer:
         state = self.space.generate_state()
         cost = self.space.cost(state)
         temperature = 1e0
+        iteration = 0
         while temperature > self.inf_temperature:
             # until the temperature has cooled completely, search for new neighbors.
-            for iteration in range(self.internal_iterations):
+            for _ in range(self.internal_iterations):
 
                 # draw a neighbor from the current state, and compute its associated cost.
                 new_state = self.space.neighbor(state)
@@ -121,6 +122,8 @@ class Annealer:
                 if coin < acceptance:
                     # flip a coin. if heads, accept the new state. otherwise, proceed as before.
                     state, cost = new_state, new_cost
+
+                iteration += 1
             # lower the temperature
             temperature *= self.decay
         return state, cost
