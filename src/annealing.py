@@ -3,16 +3,15 @@
 Data structures for computing simulated annealing.
 """
 from src.states import StateSpace
-from numpy import exp
-from numpy.random import rand
+import numpy as np
 
 
-def _metropolis_hastings_probability(cost1, cost2, temperature):
+def _metropolis_hastings_probability(old_cost, new_cost, temperature):
     r"""
-    :param cost1:
-    :type cost1: float
-    :param cost2:
-    :type cost2: float
+    :param old_cost:
+    :type old_cost: float
+    :param new_cost:
+    :type new_cost: float
     :param temperature:
     :type temperature: float
 
@@ -25,7 +24,7 @@ def _metropolis_hastings_probability(cost1, cost2, temperature):
 
     This is guaranteed to be between 0 and 1, which makes it suitable as a kind of probability.
     """
-    return exp(-(cost2 - cost1) / temperature)
+    return np.exp(-(new_cost - old_cost) / temperature)
 
 
 class Annealer:
@@ -56,12 +55,12 @@ class Annealer:
         self.internal_iterations = internal_iter
 
     @staticmethod
-    def acceptance_probability(cost1, cost2, temperature) -> float:
+    def acceptance_probability(old_cost, new_cost, temperature) -> float:
         r"""
-        :param cost1: The first cost value. Not really much to be said here.
-        :type cost1: float
-        :param cost2: The second cost value. Not really much to be said here.
-        :type cost2: float
+        :param old_cost: The first cost value. Not really much to be said here.
+        :type old_cost: float
+        :param new_cost: The second cost value. Not really much to be said here.
+        :type new_cost: float
         :param temperature: The current temperature.
 
         :return: The acceptance probability.
@@ -73,7 +72,7 @@ class Annealer:
         This defaults to the Metropolis-Hastings acceptance probability formula. At some point we
         could try different options.
         """
-        return _metropolis_hastings_probability(cost1, cost2, temperature)
+        return _metropolis_hastings_probability(old_cost, new_cost, temperature)
 
     def anneal(self, callback=None) -> (StateSpace.State, float):
         """
@@ -105,7 +104,7 @@ class Annealer:
                 new_state = self.space.neighbor(state)
                 new_cost = self.space.cost(new_state)
                 acceptance = self.acceptance_probability(cost, new_cost, temperature)
-                coin = rand()
+                coin = np.random.rand()
 
                 if callback:  # this is for additional data gathering and analysis by the user
                     callback(

@@ -39,10 +39,10 @@ def block_site_and_normalize(matrix, site, drone, drone_distribution):
     # zero out the column associated with the current site
     matrix[:, site] = 0.
     normalization = np.sum(matrix, axis=1)[:, None]  # pre-compute all normalization values
-    if normalization[site] == 0.:  # in this case, the drone can no longer proceed to new sites, so the drone
-                                    # distribution is updated
-        drone_distribution[drone] = 0.
-        drone_distribution /= np.sum(drone_distribution)
+    #if np.sum(drone_distribution[drone_distribution > 0]) > 1 and normalization[site] == 0.:  # in this case, the drone can no longer proceed to new sites, so the drone
+    #                                # distribution is updated
+    #    drone_distribution[drone] = 0.
+    #    drone_distribution /= np.sum(drone_distribution)
 
     for row, normalizer in enumerate(normalization):
         if normalizer > 0.:  # only normalize reachable (i.e., nonzero) rows.
@@ -83,13 +83,22 @@ def generate_drone_trajectory(matrix, initial_dist, num_drones):
     for drone in trajectories:
         block_site_and_normalize(matrix, trajectories[drone][-1], drone, drone_probabilities)
 
+    matrix_condition = lambda m: np.linalg.norm(m, ord=1) != 0.
+    drone_condition = lambda dr_pr: np.any(dr_pr > 0.)
+
     # loop until the matrix is all zeros
-    while np.linalg.norm(matrix, ord=1) != 0.:
+    while np.any(drone_probabilities > 0.):
+    # while np.linalg.norm(matrix, ord=1) != 0.:
         drone_id = np.random.choice(available_drones, p=drone_probabilities)  # choose a drone
         current_site = trajectories[drone_id][-1]
-        next_site = np.random.choice(available_sites, p=matrix[current_site, :])  # choose the next site
-        trajectories[drone_id].append(next_site)
-        block_site_and_normalize(matrix, next_site, drone_id, drone_probabilities)  # normalize and proceed
+        if np.sum(matrix[current_site, :]) == 0.:
+            drone_probabilities[drone_id] = 0.
+            if np.any(drone_probabilities > 0.):
+                drone_probabilities /= np.sum(drone_probabilities)
+        else:
+            next_site = np.random.choice(available_sites, p=matrix[current_site, :])  # choose the next site
+            trajectories[drone_id].append(next_site)
+            block_site_and_normalize(matrix, next_site, drone_id, drone_probabilities)  # normalize and proceed
 
     return trajectories
 
@@ -119,7 +128,10 @@ def max_tours_traversal(tours, sites):
 
     Computes the maximum traversal time from a given set of tours over a point set.
     """
-    return max(tour_traversal(tours[drone], sites) for drone in tours)
+    if sum(len(tours[d]) for d in tours) >= len(sites):
+        return max(tour_traversal(tours[drone], sites) for drone in tours)
+    else:
+        return np.inf
 
 
 def uniform_transition(sites):
@@ -178,6 +190,7 @@ class DroneTour(StateSpace):
         self.num_drones = num_drones
         self.transition_matrix = transition_matrix or uniform_transition(sites)
         self.initial_distribution = initial_distribution or uniform_initial(sites)
+        self.theta = 0.8
 
     def cost(self, state):
         """
@@ -265,40 +278,41 @@ class DroneTour(StateSpace):
         initial_distribution = np.empty(self.initial_distribution.shape)
         for j in range(sites):
             numerator = sum(
-                indicator(scores[ell] >= threshold) *
+                indicator(scores[ell] <= threshold) *
                 indicator(any(j == samples[ell][d][0] for d in samples[ell]))
                 for ell in range(len(samples))
             )
             denominator = sum(
-                indicator(scores[ell] >= threshold) *
+                indicator(scores[ell] <= threshold) *
                 indicator(any(jp == samples[ell][d][0] for d in samples[ell]))
                 for ell in range(len(samples)) for jp in range(sites)
             )
-            initial_distribution[j] = numerator / denominator
+            initial_distribution[j] = (numerator / denominator) if denominator != 0. else 0.
 
         # compute the new transition matrix
         transition_matrix = np.empty(self.transition_matrix.shape)
         for i in range(sites):
             for j in range(sites):
                 numerator = sum(
-                    indicator(scores[ell] >= threshold) *
-                    indicator(samples[ell][d][r] == i and samples[ell][d][(r + 1) % len(samples[ell][d])] == j)
+                    indicator(
+                        (scores[ell] <= threshold) and
+                        (samples[ell][d][r] == i and samples[ell][d][(r + 1) % len(samples[ell][d])] == j)
+                    )
                     for ell in range(len(samples))
                     for d in range(self.num_drones)
                     for r in range(len(samples[ell][d]))
                 )
                 denominator = sum(
-                    indicator(scores[ell] >= threshold) *
+                    indicator(scores[ell] <= threshold) *
                     indicator(samples[ell][d][r] == i and samples[ell][d][(r + 1) % len(samples[ell][d])] == jp)
                     for jp in range(sites)
                     for ell in range(len(samples))
                     for d in range(self.num_drones)
                     for r in range(len(samples[ell][d]))
                 )
+                transition_matrix[i, j] = (numerator / denominator) if denominator != 0. else 0.
 
-                transition_matrix[i, j] = numerator / denominator
-
-        return {'initial_distribution': initial_distribution, 'transition_matrix': self.transition_matrix}
+        return {'initial_distribution': initial_distribution, 'transition_matrix': transition_matrix}
 
     def get_parameters(self):
         """
@@ -325,5 +339,5 @@ class DroneTour(StateSpace):
         - 'initial_distribution': a numpy.ndarray; the initial distribution of sites
         - 'transition_matrix': a numpy.ndarray; the transition probabilities on the sites
         """
-        self.initial_distribution = parameters['initial_distribution']
-        self.transition_matrix = parameters['transition_matrix']
+        self.initial_distribution = self.theta * self.initial_distribution + (1-self.theta) * parameters['initial_distribution']
+        self.transition_matrix = self.theta * self.transition_matrix + (1-self.theta) * parameters['transition_matrix']
