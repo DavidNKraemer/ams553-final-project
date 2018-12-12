@@ -2,21 +2,28 @@ import numpy as np
 
 import src.tours as tours
 from src.cross_entropy import CrossEntropy
+from src.tour_generation import ModifiedKroeseTourGenerator, MultiTSPTourGenerator
 
 # drone tour parameters
-num_sites, num_drones = 10, 4
+num_sites, num_drones = 5, 2
 sites = np.random.rand(num_sites, 2)  # the 2 indicates we are sampling sites from the plane
 
-drone_tour = tours.DroneTour(sites, num_drones)
+tour_generator = ModifiedKroeseTourGenerator(num_sites, num_drones, replace=False)
+alt_tour_generator = MultiTSPTourGenerator(num_sites, num_drones)
+
+drone_tour = tours.DroneTour(sites, num_drones, tour_generator)
+alt_drone_tour = tours.DroneTour(sites, num_drones, alt_tour_generator)
 
 # cross entropy parameters
 x_entropy_sample_size = 1
 x_entropy_quantile = 0.1  # specifies the 90% percentile
 
 x_entropy_estimator = CrossEntropy(drone_tour, x_entropy_sample_size, x_entropy_quantile)
+alt_x_entropy_estimator = CrossEntropy(alt_drone_tour, x_entropy_sample_size, x_entropy_quantile)
 
 # an example way to use the callback -- see below for details
 samples_drawn = []
+alt_samples_drawn = []
 
 
 def callback(**kwargs):
@@ -36,7 +43,9 @@ def callback(**kwargs):
 
 
 x_entropy_estimator.minimize(callback=callback)
+alt_x_entropy_estimator.minimize(callback=callback)
 
-for sample in samples_drawn:
-    for tour in sample:
-        print(tour)
+for sample, alt_sample in zip(samples_drawn, alt_samples_drawn):
+    for tour, alt_tour in zip(sample, alt_sample):
+        print("v1: ", tour)
+        print("v2: ", alt_tour)
