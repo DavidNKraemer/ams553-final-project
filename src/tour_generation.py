@@ -321,7 +321,7 @@ class MultiTSPTourGenerator(TourGenerator):
         :param transition_matrices: the set of stochastic matrices which dictate the transition between sites for each drone
         :type transition_matrices: dict[int, np.ndarray]
         :param initial_distributions: the set of distributions of sites for the starting positions of each drone
-        :type initial_distribution: dict[int, np.ndarray]
+        :type initial_distributions: dict[int, np.ndarray]
         :param theta: update smoothing parameter
         :type theta: float
         :param replace: whether initial sites are selected independently (with replacement) or in sequence (without replacement)

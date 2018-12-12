@@ -1,5 +1,5 @@
 from src.tours import max_tours_traversal
-
+import itertools
 
 def partition(ns, m):
     """
@@ -15,6 +15,7 @@ def partition(ns, m):
     :return:
     The list of all partitions of the given list of integers.
     """
+
     def visit(n, a):
         ps = [[] for i in range(m)]
         for j in range(n):
@@ -86,6 +87,8 @@ def partition(ns, m):
                 yield v
 
     n = len(ns)
+    if m == 1:
+        return itertools.permutations(range(n))
     a = [0] * (n + 1)
     for j in range(1, m + 1):
         a[n - m + j] = j - 1
@@ -104,13 +107,12 @@ def find_optimal_partition(n, k, cost_fn=None) -> (dict, float):
     :return: a pair (partition, value) where partition is the optimal partition
         given the cost function provided and value is the corresponding optimal value.
     """
-    k_partitions = partition([i for i in range(n)], k)
-    partition_2_value = [(p, cost_fn(p)) for p in k_partitions]
+    k_partitions = partition(list(range(n)), k)
+    partition_2_value = [(list(p), cost_fn(list(p))) for p in k_partitions]
     team_tour, value = min(partition_2_value, key=lambda x: x[1])
 
-    team_tour_dict = {}
-    for i, tour in enumerate(team_tour):
-        team_tour_dict[i] = tour
+    team_tour = [team_tour] if k == 1 else team_tour
+    team_tour_dict = {d: tour for d, tour in enumerate(team_tour)}
 
     return team_tour_dict, value
 
@@ -119,9 +121,8 @@ def find_optimal_partition(n, k, cost_fn=None) -> (dict, float):
 def find_optimal_team_tour(sites, k):
 
     def cost(team_tour):
-        team_tour_dict = {}
-        for i, tour in enumerate(team_tour):
-            team_tour_dict[i] = tour
+        team_tour = [team_tour] if k == 1 else team_tour
+        team_tour_dict = {d: tour for d, tour in enumerate(team_tour)}
         return max_tours_traversal(team_tour_dict, sites)
     n = len(sites)
     return find_optimal_partition(n, k, cost_fn=cost)
