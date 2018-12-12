@@ -2,12 +2,14 @@ import numpy as np
 
 import src.tours as tours
 from src.annealing import Annealer
+from src.tour_generation import ModifiedKroeseTourGenerator
 
 # drone tour parameters
 num_sites, num_drones = 10, 4
 sites = np.random.rand(num_sites, 2)  # the 2 indicates we are sampling sites from the plane
 
-drone_tour = tours.DroneTour(sites, num_drones)
+tour_generator = ModifiedKroeseTourGenerator(num_sites, num_drones, replace=False)
+drone_tour = tours.DroneTour(sites, num_drones, tour_generator)
 
 # cross entropy parameters
 annealer = Annealer(drone_tour)

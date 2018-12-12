@@ -20,9 +20,9 @@ def indicator(condition):
 
 def block_site_and_normalize(matrix, site, drone, drone_distribution):
     """
-    :param matrix: a (possibly sub-)stochastic matrix
+    :param matrix: a (possibly sub-)stochastic transition_matrix
     :type matrix: numpy.ndarray
-    :param site: the current site to update in the matrix
+    :param site: the current site to update in the transition_matrix
     :type site: int
     :param drone: the current drone to possibly update
     :type drone: int
@@ -30,7 +30,7 @@ def block_site_and_normalize(matrix, site, drone, drone_distribution):
     :type drone_distribution: numpy.ndarray
     :return:
 
-    Given a stochastic matrix , the current site, a drone, and the distribution of drones, update the matrix so that the
+    Given a stochastic transition_matrix , the current site, a drone, and the distribution of drones, update the transition_matrix so that the
     current site can no longer be reached. If a resulting row has no more positive entries, it is no longer reachable,
     and therefore isn't normalized. In this case, the drone can no longer proceed, and so the drone distribution is
     updated to make future draws ignore the given drone.
@@ -51,16 +51,16 @@ def block_site_and_normalize(matrix, site, drone, drone_distribution):
 
 def generate_drone_trajectory(matrix, initial_dist, num_drones):
     """
-    :param matrix: A transition probability matrix
+    :param matrix: A transition probability transition_matrix
     :type matrix: numpy.ndarray
     :param initial_dist:
     :type initial_dist: numpy.ndarray
     :param num_drones:
     :type num_drones: int
-    :return: A k-drone tour of list(range(len(initial_dist))) that follows the probabilities in matrix
+    :return: A k-drone tour of list(range(len(initial_dist))) that follows the probabilities in transition_matrix
     :rtype: dict[list]
 
-    Generates a drone trajectory according to a (possibly sub-)stochastic matrix and initial site distribution, along
+    Generates a drone trajectory according to a (possibly sub-)stochastic transition_matrix and initial site distribution, along
     with a specified number of drones to draw.
 
     See Rubinstein and Kroese (2004) for a description on how to generate such trajectories for the TSP (i.e., 1-drone
@@ -83,7 +83,7 @@ def generate_drone_trajectory(matrix, initial_dist, num_drones):
     for drone in trajectories:
         block_site_and_normalize(matrix, trajectories[drone][-1], drone, drone_probabilities)
 
-    # loop until the matrix is all zeros
+    # loop until the transition_matrix is all zeros
     while np.linalg.norm(matrix, ord=1) != 0.:
         drone_id = np.random.choice(available_drones, p=drone_probabilities)  # choose a drone
         current_site = trajectories[drone_id][-1]
@@ -127,10 +127,10 @@ def uniform_transition(sites):
     :param sites: A point set in a Euclidean space
     :type sites: numpy.ndarray
 
-    :return: Uniform transition matrix on the sites
+    :return: Uniform transition transition_matrix on the sites
     :rtype: numpy.ndarray
 
-    Returns a transition matrix corresponding to a uniform distribution on the
+    Returns a transition transition_matrix corresponding to a uniform distribution on the
     site transitions.
     """
     size = len(sites)
@@ -170,7 +170,7 @@ class DroneTour(StateSpace):
         :type sites: numpy.ndarray
         :param num_drones: The number of drones in the model.
         :type num_drones: int
-        :param transition_matrix: The transition matrix associated with tour generation
+        :param transition_matrix: The transition transition_matrix associated with tour generation
         :type transition_matrix: numpy.ndarray
         :param initial_distribution: The distribution of initial sites for the tour generation
         """
@@ -221,7 +221,7 @@ class DroneTour(StateSpace):
         :return: The probability mass associated with the given state.
         :rtype: float
 
-        Computes the pmf of a given k-drone tour according the the transition probability matrix and initial
+        Computes the pmf of a given k-drone tour according the the transition probability transition_matrix and initial
         distribution of sites.
 
         The pmf is the product of the initial probabilities of starting states with the product of the transition
@@ -276,7 +276,7 @@ class DroneTour(StateSpace):
             )
             initial_distribution[j] = numerator / denominator
 
-        # compute the new transition matrix
+        # compute the new transition transition_matrix
         transition_matrix = np.empty(self.transition_matrix.shape)
         for i in range(sites):
             for j in range(sites):
@@ -302,7 +302,7 @@ class DroneTour(StateSpace):
 
     def get_parameters(self):
         """
-        :return: The initial distribution of sites and the transition matrix packaged into a dictionary
+        :return: The initial distribution of sites and the transition transition_matrix packaged into a dictionary
         :rtype: dict
 
         Retrieves the current probability distribution parameters of the StateSpace

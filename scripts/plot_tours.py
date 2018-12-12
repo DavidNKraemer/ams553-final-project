@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from src.tours import DroneTour
+from src.tour_generation import ModifiedKroeseTourGenerator, MultiTSPTourGenerator
 from src.annealing import Annealer
 from src.cross_entropy import CrossEntropy
 from src.brute_force import find_optimal_team_tour
@@ -15,7 +16,10 @@ sns.set_context("talk")
 num_sites, num_drones = 10, 4
 sites = np.random.rand(num_sites, 2)
 
-drone_tour = DroneTour(sites, num_drones)
+# tour_generator = ModifiedKroeseTourGenerator(num_sites, num_drones)
+tour_generator = MultiTSPTourGenerator(num_sites, num_drones)
+
+drone_tour = DroneTour(sites, num_drones, tour_generator)
 
 random_tour = drone_tour.generate_state()
 
@@ -53,11 +57,12 @@ plot_policies(x_entropy_tour, sites, axis=axes[1])
 
 fig.suptitle(f"{num_sites} Uniformly distributed sites on $[0,1]^2$")
 axes[0].set_title(f"Random {num_drones}-tour")
-axes[1].set_title(f"X-Entropy {num_drones}-tour")
+axes[1].set_title(f"X-Entropy {num_drones}-tour (MultiTSP)")
 
 for ax in axes:
    sns.despine(fig=fig, ax=ax, top=True, right=True, left=True, bottom=True, trim=True)
    ax.set_axis_off()
+
 
 fig.savefig('../plots/cross_entropy_tours.png', bbox_inches='tight', transparent=True)
 
