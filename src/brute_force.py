@@ -1,3 +1,4 @@
+from src.tours import max_tours_traversal
 
 
 def partition(ns, m):
@@ -91,7 +92,7 @@ def partition(ns, m):
     return f(m, n, 0, n, a)
 
 
-def find_optimal_partition(n, k, cost_fn=None) -> (list, float):
+def find_optimal_partition(n, k, cost_fn=None) -> (dict, float):
     """
     Finds the optimal partition and corresponding cost, with respect to
     minimizing the provided cost function.
@@ -105,4 +106,22 @@ def find_optimal_partition(n, k, cost_fn=None) -> (list, float):
     """
     k_partitions = partition([i for i in range(n)], k)
     partition_2_value = [(p, cost_fn(p)) for p in k_partitions]
-    return min(partition_2_value, key=lambda x: x[1])
+    team_tour, value = min(partition_2_value, key=lambda x: x[1])
+
+    team_tour_dict = {}
+    for i, tour in enumerate(team_tour):
+        team_tour_dict[i] = tour
+
+    return team_tour_dict, value
+
+
+
+def find_optimal_team_tour(sites, k):
+
+    def cost(team_tour):
+        team_tour_dict = {}
+        for i, tour in enumerate(team_tour):
+            team_tour_dict[i] = tour
+        return max_tours_traversal(team_tour_dict, sites)
+    n = len(sites)
+    return find_optimal_partition(n, k, cost_fn=cost)

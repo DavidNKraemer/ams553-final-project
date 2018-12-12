@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_policies(tours, sites, axis=plt.gcf()):
+def plot_policies(tours, sites, axis=plt.gca()):
     """
     :param tours: a given k-tour of the point set
     :type tours: list[list]
