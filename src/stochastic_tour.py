@@ -134,45 +134,8 @@ def generate_arrival_times(system, length):
     return arrival_times
 
 
-def compute_average(data):
-    return (1/len(data))*sum(data)
-
-def compute_cost()
-
-
-if __name__ == '__main__':
-
-    N = 10
-    K = 5
-    drone_id = 4
-
-    system = System.generate_random_system(N, K)
-
-    d = system.compute_path_distance([0,3,5,6,3])
-    '''
-    avg_times = [0]
-    for k in range(K):
-        t = 0
-        for _ in range(100):
-            path = system.generate_path(0, 4, k)
-            d = system.compute_path_distance(path)
-            t += d/system.get_drone(k).speed
-        t /= 100
-        avg_times.append(t)
-    avg_times = sorted(avg_times)
-    print(avg_times)
-
-    inter_arrival = []
-    for i in range(K):
-        inter_arrival.append(avg_times[i+1] - avg_times[i])
-    print(inter_arrival)
-
-    avg_time = (1/len(inter_arrival))*sum(inter_arrival)
-    print(avg_time)
-    '''
-
-
-    arrival_times = generate_arrival_times(system, 1000)
+def compute_cost(system, n):
+    arrival_times = generate_arrival_times(system, n)
     interarrival_times = [[] for _ in range(len(system.sites))]
     for i in range(len(arrival_times)):
         arrivals = arrival_times[i]
@@ -180,4 +143,8 @@ if __name__ == '__main__':
             interarrival_times[i].append(arrivals[j+1][1] - arrivals[j][1])
 
     interarrival_avgs = [compute_average(i) for i in interarrival_times]
-    print(max(interarrival_avgs))
+    return max(interarrival_avgs)
+
+
+def compute_average(data):
+    return (1/len(data))*sum(data)

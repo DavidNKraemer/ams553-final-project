@@ -31,6 +31,22 @@ def block_site_and_normalize(matrix, site):
             matrix[row, :] /= normalizer
 
 
+def categorical(p):
+    return np.random.choice(len(p), 1, p=p)[0]
+
+
+def generate_prob_matrix(n):
+    matrix = np.random.rand(n, n)
+
+    for i in range(n):
+        matrix[i][i] = 0
+
+    for i in range(n):
+        matrix[i] = (1/np.sum(matrix[i]))*matrix[i]
+
+    return matrix
+
+
 class TourGenerator(abc.ABC):
     """
     An abstract class to house drone tour generation methods.
@@ -401,7 +417,6 @@ class MultiTSPTourGenerator(TourGenerator):
 
         return {'initial_distributions': init_dists, 'transition_matrices': transition_mats}
 
-
     def get_parameters(self):
         """
         :return: The initial distribution of sites and the transition transition_matrix packaged into a dictionary
@@ -469,3 +484,85 @@ class MultiTSPTourGenerator(TourGenerator):
                 block_site_and_normalize(transitions[drone_id], next_site)
 
         return trajectories
+
+
+class MultiDronePathGenerator(TourGenerator):
+
+    def __init__(self, num_sites, num_drones, path_length, transition_matrices, initial_distributions={}, theta=0.5):
+        """
+        Initializer method.
+
+        :param num_sites: the number of sites which are to be visited by the drone tours
+        :type num_sites: int
+        :param num_drones:  the number of available drones
+        :type num_drones: int
+        :param path_length: the number of times each drone should make a transition to a new state
+        :type path_length: int
+        :param transition_matrices: the set of stochastic matrices which dictate the transition between sites for each drone
+        :type transition_matrices: dict[int, np.ndarray]
+        :param initial_distributions: the set of distributions of sites for the starting positions of each drone
+        :type initial_distribution: dict[int, np.ndarray]
+        :param theta: update smoothing parameter
+        :type theta: float
+        :param replace: whether initial sites are selected independently (with replacement) or in sequence (without replacement)
+        :type replace: bool
+        """
+        self.num_sites = num_sites
+        self.num_drones = num_drones
+        self.path_length = path_length
+        self.site_indices = [i for i in range(self.num_sites)]
+        self.transition_matrices = transition_matrices
+        self.initial_distributions = {i: initial_distributions.get(i) or uniform_initial(self.site_indices) for i in range(self.num_drones)}
+        self.theta = theta
+
+    def generate_tour(self):
+
+        def generate_path_of_length(length, drone_id):
+            path = []
+            P = self.transition_matrices[drone_id]
+            s = categorical(self.initial_distributions[drone_id])
+            path.append(s)
+            site = s
+            for i in range(length):
+                site = categorical(P[site])
+                path.append(site)
+            return path
+
+        drone_paths = {}
+        for i in range(self.num_drones):
+            drone_paths[i] = generate_path_of_length(self.path_length, i)
+        return drone_paths
+
+    def pmf(self, state):
+        pass
+
+    def estimate_parameters(self, threshold, samples, scores):
+        pass
+
+    def get_parameters(self):
+        """
+        :return: The initial distribution of sites and the transition transition_matrix packaged into a dictionary
+        :rtype: dict
+
+        Retrieves the current probability distribution parameters of the StateSpace
+
+        The keys in the dictionary are
+        - 'initial_distribution': a numpy.ndarray; the initial distribution of sites
+        - 'transition_matrix': a numpy.ndarray; the transition probabilities on the sites
+        """
+        return {'initial_distributions': self.initial_distributions, 'transition_matrices': self.transition_matrices}
+
+    def set_parameters(self, parameters):
+        """
+        :param parameters: A dictionary of the DroneTour parameters
+        :type parameters: dict
+        :return: N/A [called for side effects]
+
+        Sets the current StateSpace probability distribution parameters to the provided parameters.
+
+        The dictionary parameters has the following keys:
+        - 'initial_distributions': a dict[int, numpy.ndarray]; the initial distribution of sites
+        - 'transition_matrices': a dict[int, numpy.ndarray]; the transition probabilities on the sites
+        """
+        self.transition_matrices = parameters['transition_matrices']
+        self.initial_distributions = parameters['initial_distributions']
