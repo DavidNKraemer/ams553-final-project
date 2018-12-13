@@ -2,7 +2,7 @@ import numpy as np
 
 import src.tours as tours
 from src.cross_entropy import CrossEntropy
-from src.tour_generation import ModifiedKroeseTourGenerator, MultiTSPTourGenerator
+from src.tour_generation import ModifiedKroeseTourGenerator, MultiTSPTourGenerator, MultiDronePathGenerator
 
 # drone tour parameters
 num_sites, num_drones = 5, 2
@@ -10,9 +10,11 @@ sites = np.random.rand(num_sites, 2)  # the 2 indicates we are sampling sites fr
 
 tour_generator = ModifiedKroeseTourGenerator(num_sites, num_drones, replace=False)
 alt_tour_generator = MultiTSPTourGenerator(num_sites, num_drones)
+path_generator = MultiDronePathGenerator(num_sites, num_drones)
 
 drone_tour = tours.DroneTour(sites, num_drones, tour_generator)
 alt_drone_tour = tours.DroneTour(sites, num_drones, alt_tour_generator)
+drone_path = tours.DroneTour(sites, num_drones, path_generator)
 
 # cross entropy parameters
 x_entropy_sample_size = 1

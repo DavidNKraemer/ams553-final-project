@@ -515,29 +515,71 @@ class MultiDronePathGenerator(TourGenerator):
         self.initial_distributions = {i: initial_distributions.get(i) or uniform_initial(self.site_indices) for i in range(self.num_drones)}
         self.theta = theta
 
-    def generate_tour(self):
-
-        def generate_path_of_length(length, drone_id):
-            path = []
-            P = self.transition_matrices[drone_id]
-            s = categorical(self.initial_distributions[drone_id])
-            path.append(s)
-            site = s
-            for i in range(length):
-                site = categorical(P[site])
-                path.append(site)
-            return path
-
-        drone_paths = {}
-        for i in range(self.num_drones):
-            drone_paths[i] = generate_path_of_length(self.path_length, i)
-        return drone_paths
-
     def pmf(self, state):
         pass
 
+    def _estimate_markov_parameters(self, samples):
+        """
+
+        :param samples: a list of shape (sample_size, path_length) containing
+            the drone trajectories of a single drone.
+        :type list[dict[int, list]]
+        :return: grand_estimate: the probability matrix calculated from the
+            given samples
+        """
+        samples = [samples[i] for i in samples.keys()]
+        n = len(samples)
+
+        # Initialize estimate matrix
+        prob_estimate = np.zeros([self.num_sites, self.num_sites])
+        init_estimate = np.zeros([self.num_sites])
+
+        for i in range(n):
+
+            # Count how many time each transition occurs.
+            for j in range(self.path_length - 1):
+                prob_estimate[samples[i][j]][samples[i][j + 1]] += 1
+
+            init_estimate[samples[i][0]] += 1
+
+        # Normalize the matrix and initial distributions
+        init_estimate /= np.sum(init_estimate)
+        for i in range(self.num_sites):
+            prob_estimate[i] /= np.sum(prob_estimate[i])
+
+        return prob_estimate, init_estimate
+
     def estimate_parameters(self, threshold, samples, scores):
-        pass
+        """
+        :param threshold: a specified score that the samples must beat to be considered
+        :type threshold: float
+        :param samples: a list of drone tour trajectories
+        :type samples: list[dict[int,list]]
+        :param scores: a list of associated scores for the drone tour trajectories
+        :type score: list[float]
+        :return: a dictionary of the estimated parameters
+        :rtype: dict, containing the keys
+            - 'transition_matrices' (np.ndarray)
+
+        Estimates parameters that maximize the odds of beating the threshold given the current crop of samples and their
+        associated scores. The estimation is specifically determined by solving a Lagrange multiplier problem on the
+        cross entropy function.
+        """
+
+        transition_mats = {i: np.zeros([self.num_sites, self.num_sites]) for i in range(self.num_drones)}
+        init_dists = {i: np.zeros([self.num_sites]) for i in range(self.num_drones)}
+
+        refined_samples_indices = []
+        for i in range(len(samples)):
+            if scores[i] > threshold:
+                refined_samples_indices.append(i)
+
+        samples = [samples[i] for i in refined_samples_indices]
+        for i in range(self.num_drones):
+            drone_samples = [samples[j][i] for j in range(len(samples))]
+            transition_mats[i], init_dists[i] = self._estimate_markov_parameters(drone_samples)
+
+        return {'initial_distributions': init_dists, 'transition_matrices': transition_mats}
 
     def get_parameters(self):
         """
@@ -566,3 +608,28 @@ class MultiDronePathGenerator(TourGenerator):
         """
         self.transition_matrices = parameters['transition_matrices']
         self.initial_distributions = parameters['initial_distributions']
+
+    def generate_tour(self):
+        """
+        :return: A k-drone path of length 'path_length' that follows the probabilities in the transition
+                 matrices associated with the current state parameters
+        :rtype: dict[list]
+
+        Generates a path for each drone according to each of their transition matrices. Each path is of length
+        'path_length'.
+        """
+        def generate_path_of_length(length, drone_id):
+            path = []
+            P = self.transition_matrices[drone_id]
+            s = categorical(self.initial_distributions[drone_id])
+            path.append(s)
+            site = s
+            for i in range(length):
+                site = categorical(P[site])
+                path.append(site)
+            return path
+
+        drone_paths = {}
+        for i in range(self.num_drones):
+            drone_paths[i] = generate_path_of_length(self.path_length, i)
+        return drone_paths
