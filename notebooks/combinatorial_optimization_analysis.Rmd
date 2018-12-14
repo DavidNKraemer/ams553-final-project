@@ -3,13 +3,16 @@ title: "Analysis of Combinatorial Optimization"
 output: html_notebook
 ---
 ```{r}
-comparison_data = read.csv('data/small_problem_data_1_30_8.csv')
+comparison_data = read.csv('../data/small_problem_data_1_30_8.csv')
+
+distribution_pairs = c("(0,0)", "(0,1)", "(1,0)", "(1,1)", "(2,0)", "(2,1)")
+
 ```
 
 ##Distribution Pair (0,0)
 
+Optimal Cost: 0.2781962
 ```{r}
-
 # Run on the (0, 0) distribution pair.
 comparison_data_0_0 = comparison_data[c(1:30), c(5,7,9)]
 
@@ -21,6 +24,8 @@ t.test(xentropy_diff)
 ```
 
 ## Distribution Pair (0,1)
+
+Optimal Cost: 0.4561246
 ```{r}
 # Run on the (0, 1) distribution pair.
 comparison_data_0_1 = comparison_data[c(31:60), c(5,7,9)]
@@ -34,6 +39,8 @@ t.test(xentropy_diff)
 The results for the t-test between the simulated annealing and brute force method is not coming out correctly because they have the same cost.
 
 ## Distribution Pair (1,0)
+
+Optimal Cost: 0.05225641
 ```{r}
 # Run on the (1, 0) distribution pair.
 comparison_data_1_0 = comparison_data[c(61:90), c(5,7,9)]
@@ -46,6 +53,8 @@ t.test(xentropy_diff)
 ```
 
 ## Distribution Pair (1,1)
+
+Optimal Cost: 0.7521175
 ```{r}
 # Run on the (1, 1) distribution pair.
 comparison_data_1_1 = comparison_data[c(91:120), c(5,7,9)]
@@ -58,6 +67,8 @@ t.test(xentropy_diff)
 ```
 
 ## Distribution Pair (2,0)
+
+Optimal Cost: 0.3328103
 ```{r}
 # Run on the (2, 0) distribution pair.
 comparison_data_2_0 = comparison_data[c(121:150), c(5,7,9)]
@@ -71,6 +82,8 @@ t.test(xentropy_diff)
 The results for the t-test between the simulated annealing and brute force method is not coming out correctly because they have the same cost.
 
 ## Distribution Pair (2,1)
+
+Optimal Cost: 0.1326781
 ```{r}
 # Run on the (2, 1) distribution pair.
 comparison_data_2_1 = comparison_data[c(151:180), c(5,7,9)]
