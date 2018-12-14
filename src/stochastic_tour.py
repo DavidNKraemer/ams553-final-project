@@ -103,8 +103,7 @@ class System:
         return System(sites, drones)
 
 
-
-def compute_arrival_times(path, drone_id):
+def _compute_arrival_times(path, drone_id, sites, speed):
     arrival_times = []
     t = 0
     for i in range(len(path) - 1):
@@ -113,12 +112,12 @@ def compute_arrival_times(path, drone_id):
     return arrival_times
 
 
-def generate_arrival_times(system, length):
+def _generate_arrival_times(system, num_drones, length):
     arrival_times = [[] for _ in range(len(system.sites))]
 
     events = []
-    for i in range(len(system.drones)):
-        path = system.generate_path_of_length(length, i)
+    for i in range(system):
+        pass
         events.extend(compute_arrival_times(path, i))
 
     def get_key(item):
