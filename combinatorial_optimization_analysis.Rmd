@@ -2,33 +2,84 @@
 title: "Analysis of Combinatorial Optimization"
 output: html_notebook
 ---
+```{r}
+comparison_data = read.csv('data/small_problem_data_1_30_8.csv')
+```
 
- 
+##Distribution Pair (0,0)
 
 ```{r}
-comparison_data = read.csv('data/small_problem_data_10_10_10.csv')
 
-brute_force_costs = comparison_data$opt_cost
-anneal_costs = comparison_data$anneal_cost
-xentropy_costs = comparison_data$xentropy_cost
+# Run on the (0, 0) distribution pair.
+comparison_data_0_0 = comparison_data[c(1:30), c(5,7,9)]
 
-anneal_diff = anneal_costs - brute_force_costs
-xentropy_diff = xentropy_costs - brute_force_costs
-
-diff = anneal_costs - xentropy_costs
-
-qqnorm(anneal_diff)
-qqnorm(xentropy_diff)
-qqnorm(diff)
+anneal_diff = comparison_data_0_0$anneal_cost - comparison_data_0_0$opt_cost
+xentropy_diff = comparison_data_0_0$xentropy_cost - comparison_data_0_0$opt_cost
 
 t.test(anneal_diff)
 t.test(xentropy_diff)
-t.test(diff)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+## Distribution Pair (0,1)
+```{r}
+# Run on the (0, 1) distribution pair.
+comparison_data_0_1 = comparison_data[c(31:60), c(5,7,9)]
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+anneal_diff = comparison_data_0_1$anneal_cost - comparison_data_0_1$opt_cost
+xentropy_diff = comparison_data_0_1$xentropy_cost - comparison_data_0_1$opt_cost
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+t.test(anneal_diff)
+t.test(xentropy_diff)
+```
+The results for the t-test between the simulated annealing and brute force method is not coming out correctly because they have the same cost.
+
+## Distribution Pair (1,0)
+```{r}
+# Run on the (1, 0) distribution pair.
+comparison_data_1_0 = comparison_data[c(61:90), c(5,7,9)]
+
+anneal_diff = comparison_data_1_0$anneal_cost - comparison_data_1_0$opt_cost
+xentropy_diff = comparison_data_1_0$xentropy_cost - comparison_data_1_0$opt_cost
+
+t.test(anneal_diff)
+t.test(xentropy_diff)
+```
+
+## Distribution Pair (1,1)
+```{r}
+# Run on the (1, 1) distribution pair.
+comparison_data_1_1 = comparison_data[c(91:120), c(5,7,9)]
+
+anneal_diff = comparison_data_1_1$anneal_cost - comparison_data_1_1$opt_cost
+xentropy_diff = comparison_data_1_1$xentropy_cost - comparison_data_1_1$opt_cost
+
+t.test(anneal_diff)
+t.test(xentropy_diff)
+```
+
+## Distribution Pair (2,0)
+```{r}
+# Run on the (2, 0) distribution pair.
+comparison_data_2_0 = comparison_data[c(121:150), c(5,7,9)]
+
+anneal_diff = comparison_data_2_0$anneal_cost - comparison_data_2_0$opt_cost
+xentropy_diff = comparison_data_2_0$xentropy_cost - comparison_data_2_0$opt_cost
+
+t.test(anneal_diff)
+t.test(xentropy_diff)
+```
+The results for the t-test between the simulated annealing and brute force method is not coming out correctly because they have the same cost.
+
+## Distribution Pair (2,1)
+```{r}
+# Run on the (2, 1) distribution pair.
+comparison_data_2_1 = comparison_data[c(151:180), c(5,7,9)]
+
+anneal_diff = comparison_data_2_1$anneal_cost - comparison_data_2_1$opt_cost
+xentropy_diff = comparison_data_2_1$xentropy_cost - comparison_data_2_1$opt_cost
+
+t.test(anneal_diff)
+t.test(xentropy_diff)
+```
+
 
