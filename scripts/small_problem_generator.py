@@ -8,10 +8,14 @@ from src.tours import DroneTour
 from src.tour_generation import ModifiedKroeseTourGenerator
 from src.brute_force import find_optimal_team_tour
 
+import time
+
+start = time.time()
+
 # experiment parameters
-num_prob_instances = 10
-num_runs = 10
-num_sites = 10
+num_prob_instances = 1
+num_runs = 30
+num_sites = 8
 binom_prob = 0.5
 
 x_entropy_sample_size = 5
@@ -73,3 +77,7 @@ data_df = pd.DataFrame.from_dict(
 print(data_df)
 
 data_df.to_csv(f"../data/small_problem_data_{num_prob_instances}_{num_runs}_{num_sites}.csv", index=False)
+
+end = time.time()
+
+print(end - start)
