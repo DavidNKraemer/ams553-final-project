@@ -2,8 +2,6 @@
 
 Repository for the fall 2018 AMS 553 "Simulation and Modeling" course final project
 
-[Link to Overleaf project](https://www.overleaf.com/7166295694ynxnsdqhnwmw).
-
 [Link to Cross Entropy paper](https://people.smp.uq.edu.au/DirkKroese/ps/CEopt.pdf)
 
 [shady link to good book](http://b-ok.cc/book/2095240/8a1643)
@@ -26,10 +24,6 @@ directory for details. There you will see how to access various bits of data.
 [ ] Implement some alternatives for calculating neighbors, measuring temperature probabilities, etc.
 [ ] Statistical analyses of the input data
 [ ] Statistical analyses of the results
-
-## Report
-
-[ ] lol, everything
 
 ## Presentation
 
